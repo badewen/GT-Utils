@@ -1,6 +1,19 @@
 #pragma once
 
 #include <string>
+#include "include/enet/enet.h"
+#include <iphlpapi.h>
+
+typedef void(__cdecl* ENetPacketDestroy_FuncSig)(ENetPacket* packet);
+typedef int(__cdecl* ENetPeerSend_FuncSig)(ENetPeer* peer, enet_uint8 channelID, ENetPacket* packet);
+//typedef ENetPacket* (__cdecl* ENetPeerReceive_FuncSig)(ENetPeer* peer, enet_uint8* channelID);
+//typedef int(__cdecl* ENetHostService_FuncSig)(ENetHost* host, ENetEvent* event, enet_uint32 timeout);
+//typedef void (*some_func_called_every_service_sig)(void* Block);
+typedef void (*HandleIncomingPacket_FuncSig)(int64_t a1, ENetEvent* enet_event);
+typedef bool(__stdcall* IsDebuggerPresent_FuncSig)();
+typedef ENetPacket* (__cdecl* ENetPacketCreate_FuncSig)(const void* data, size_t data_length, enet_uint32 flags);
+
+typedef ULONG (__stdcall* GetAdaptersAddresses_FuncSig)( ULONG Family, ULONG Flags, PVOID Reserved, PIP_ADAPTER_ADDRESSES AdapterAddresses, PULONG SizePointer);
 
 class Hooks
 {
@@ -28,6 +41,11 @@ public:
     static uintptr_t ENetPeerSend_Addr;
     static uintptr_t IsDebuggerPresent_Addr;
     static uintptr_t GetAdaptersAddresses_Addr;
+
+    static HandleIncomingPacket_FuncSig HandleIncomingPacket_Tramp;
+    static ENetPeerSend_FuncSig ENetPeerSend_Tramp;
+    static IsDebuggerPresent_FuncSig IsDebuggerPresent_Tramp;
+    static GetAdaptersAddresses_FuncSig GetAdaptersAddresses_Tramp;
 
     static HMODULE GT_Module;
     static HMODULE Kernel32_Module;

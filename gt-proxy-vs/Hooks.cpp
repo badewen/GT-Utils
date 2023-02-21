@@ -4,7 +4,12 @@
 #include <iostream>
 #include <Windows.h>
 #include <Psapi.h>
+#include <iphlpapi.h>
 
+#include "Hook_Impl.h"
+
+
+// FindSig cr : Horion Client
 #define INRANGE(x, a, b) (x >= a && x <= b)
 #define GET_BYTE(x) (GET_BITS(x[0]) << 4 | GET_BITS(x[1]))
 #define GET_BITS(x) (INRANGE((x & (~0x20)), 'A', 'F') ? ((x & (~0x20)) - 'A' + 0xa) : (INRANGE(x, '0', '9') ? x - '0' : 0))
@@ -80,6 +85,12 @@ std::string Hooks::HandleIncomingPacket_Sig{ "40 55 56 57 41 54 41 55 41 56 41 5
 uintptr_t Hooks::HandleIncomingPacket_Addr   = 0;
 uintptr_t Hooks::ENetPeerSend_Addr		     = 0;
 uintptr_t Hooks::IsDebuggerPresent_Addr      = 0; 
+uintptr_t Hooks::GetAdaptersAddresses_Addr   = 0;
+
+HandleIncomingPacket_FuncSig Hooks::HandleIncomingPacket_Tramp = 0;
+ENetPeerSend_FuncSig Hooks::ENetPeerSend_Tramp				   = 0;
+IsDebuggerPresent_FuncSig Hooks::IsDebuggerPresent_Tramp	   = 0;
+GetAdaptersAddresses_FuncSig Hooks::GetAdaptersAddresses_Tramp = 0;
 
 HMODULE Hooks::GT_Module         = 0;
 HMODULE Hooks::Kernel32_Module   = 0;
@@ -99,11 +110,14 @@ void Hooks::Init() {
 	Hooks::HandleIncomingPacket_Addr = FindSig(Hooks::HandleIncomingPacket_Sig.c_str());
 	Hooks::ENetPeerSend_Addr = FindSig(Hooks::ENetPeerSend_Sig.c_str());
 	Hooks::IsDebuggerPresent_Addr = (uintptr_t)GetProcAddress(Hooks::Kernel32_Module, "IsDebuggerPresent");
-	Hooks::GetAdaptersAddresses_Addr = (uintptr_t)GetProcAddress(Hooks::Iphlpapi_Module, "GetAdaptersAddresses");
+	Hooks::GetAdaptersAddresses_Addr = (uintptr_t)GetProcAddress(Hooks::Iphlpapi_Module, "GetAdaptersAddresses");	
 
-	std::cout << MH_CreateHook()
+	std::cout << "HandleIncomingPacket status : " << MH_StatusToString(MH_CreateHook((LPVOID)Hooks::HandleIncomingPacket_Addr, (LPVOID)HandleIncomingPacket_Hook, (LPVOID*)&Hooks::HandleIncomingPacket_Tramp));
+	std::cout << "ENetPeerSend status : " << MH_StatusToString(MH_CreateHook((LPVOID)Hooks::ENetPeerSend_Addr, (LPVOID)ENetPeerSend_Hook, (LPVOID*)&Hooks::ENetPeerSend_Tramp));
+	std::cout << "IsDebuggerPresent status : " << MH_StatusToString(MH_CreateHook((LPVOID)Hooks::IsDebuggerPresent_Addr, (LPVOID)IsDebuggerPresent_Hook, (LPVOID*)&Hooks::IsDebuggerPresent_Tramp));
+	std::cout << "GetAdapterAddresses status : " << MH_StatusToString(MH_CreateHook((LPVOID)Hooks::GetAdaptersAddresses_Addr, (LPVOID)GetAdaptersAddresses_Hook, (LPVOID*)&Hooks::GetAdaptersAddresses_Tramp));
 
-    //std::cout << "PacketHandlerHook status : " << MH_StatusToString(MH_CreateHook())
+	MH_EnableHook(MH_ALL_HOOKS);
 
 }
 
