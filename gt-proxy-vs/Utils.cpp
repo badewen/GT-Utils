@@ -3,6 +3,7 @@
 #include <random>
 #include <sstream>
 #include <iostream>
+#include "MinHook/MinHook.h"
 
 #define LOGI std::cout
 
@@ -118,4 +119,33 @@ bool Utils::modify_text_packet(std::string& text_packet, std::string data, std::
 
 }
 
+void* Utils::get_vFunc_addr(void* class_ptr, uint32_t index) {
+    return (*static_cast<void***>(class_ptr))[index];
+}
 
+HWND Utils::get_hwnd() {
+
+    HWND found_hwnd = 0;
+
+    EnumWindows((WNDENUMPROC)__enum_windows_callback, (LPARAM) &found_hwnd);
+
+    return found_hwnd;
+    
+
+}
+
+BOOL Utils::__enum_windows_callback(HWND hwnd, LPARAM lparam) {
+    DWORD w_pid = 0;
+    GetWindowThreadProcessId(hwnd, &w_pid);
+    if (w_pid == GetProcessId(GetCurrentProcess())) {
+        *((HWND*)lparam) = hwnd;
+        return false;
+    }
+    return true;
+}
+
+std::string Utils::to_hex(uint64_t num) {
+    std::stringstream str{};
+    str << std::hex << num;
+    return str.str();
+}

@@ -20,9 +20,15 @@
 
 #include "Hooks.h"
 #include "Utils.h"
+#include "ImGuI/imgui.h"
+#include "ImGuI/imgui_impl_dx9.h"
+#include "ImGuI/imgui_impl_win32.h"
 
 
 HINSTANCE dllh = 0;
+
+bool IsImguiInit = false;
+HWND GT_HWND = 0;
 
 #define LOGI std::cout 
 
@@ -62,22 +68,27 @@ void mainhack() {
 
     uint8_t some_packet[] = {0x4, 0x00, 0x00, 0x00, 0x12, 0x00, 0x00, 0x00, 0x2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-    freopen_s(&stdoutf, "packet_logs.txt", "w", stdout);
+    //freopen_s(&stdoutf, "packet_logs.txt", "w", stdout);
+    freopen_s(&stdoutf, "CONOUT$", "w", stdout);
     std::cout << "HAHAHAHAHAH";
 
     gt_proc = GetCurrentProcess();
+    GT_HWND = Utils::get_hwnd();
 
     Hooks::Init();
 
+    if (!GT_HWND) {
+        std::cout << "wtf hwnd null\n";
+    }
     std::cout << '\n' << Utils::random_number_uint(8) << '\n' << Utils::random_number_hex(8) << '\n' << Utils::random_mac() << '\n'; 
 
     if (!EnumProcessModulesEx(gt_proc, loaded_mod, sizeof(loaded_mod), &loaded_mod_count, LIST_MODULES_64BIT)) {
         std::cout << "EnumProcessModules Failed\n";
         std::cout << GetLastError() << '\n';
     }
-
+    
     // 1023 + null terminator
-    WCHAR mod_name[1024];
+    WCHAR mod_name[2048];
 
     std::cout << "LOADED MODULES : \n";
 
@@ -89,8 +100,7 @@ void mainhack() {
         std::cout << mod_name << '\n';
         memset(mod_name, 0, sizeof(mod_name));
     }
-
-
+        
     while(1) {
         if (GetAsyncKeyState(VK_ESCAPE) & 0x0001) {
             break;
@@ -99,6 +109,10 @@ void mainhack() {
 
     MH_DisableHook(MH_ALL_HOOKS);
     MH_Uninitialize();
+
+    ImGui_ImplDX9_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
 
     FreeConsole();
     fclose(stdoutf);

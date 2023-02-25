@@ -6,6 +6,9 @@
 #include <Psapi.h>
 #include <iphlpapi.h>
 
+#include <system_error>
+#include "Utils.h"
+
 #include "Hook_Impl.h"
 
 
@@ -86,17 +89,24 @@ uintptr_t Hooks::HandleIncomingPacket_Addr   = 0;
 uintptr_t Hooks::ENetPeerSend_Addr		     = 0;
 uintptr_t Hooks::IsDebuggerPresent_Addr      = 0; 
 uintptr_t Hooks::GetAdaptersAddresses_Addr   = 0;
+uintptr_t Hooks::D3D9_EndScene_Addr			 = 0;
 
-HandleIncomingPacket_FuncSig Hooks::HandleIncomingPacket_Tramp = 0;
-ENetPeerSend_FuncSig Hooks::ENetPeerSend_Tramp				   = 0;
-IsDebuggerPresent_FuncSig Hooks::IsDebuggerPresent_Tramp	   = 0;
-GetAdaptersAddresses_FuncSig Hooks::GetAdaptersAddresses_Tramp = 0;
+HandleIncomingPacket_FuncSig Hooks::HandleIncomingPacket_Tramp  = 0;
+ENetPeerSend_FuncSig Hooks::ENetPeerSend_Tramp				    = 0;
+IsDebuggerPresent_FuncSig Hooks::IsDebuggerPresent_Tramp	    = 0;
+GetAdaptersAddresses_FuncSig Hooks::GetAdaptersAddresses_Tramp  = 0;
+D3D9_EndScene_FuncSig Hooks::D3D9_EndScene_Tramp			    = 0;
+
+WNDPROC Hooks::WndProc_O = 0;
 
 HMODULE Hooks::GT_Module         = 0;
 HMODULE Hooks::Kernel32_Module   = 0;
 HMODULE Hooks::Iphlpapi_Module   = 0;
+HMODULE Hooks::D3d9_Module = 0;
 
 HANDLE Hooks::GT_Proc = 0;
+
+IDirect3DDevice9Ex* GT_D3D9_Dev = 0;
 
 void Hooks::Init() {
 
@@ -106,16 +116,52 @@ void Hooks::Init() {
 	Hooks::GT_Proc = GetCurrentProcess();
 	Hooks::Kernel32_Module = LoadLibrary(L"Kernel32");
 	Hooks::Iphlpapi_Module = LoadLibrary(L"Iphlpapi");
+	Hooks::D3d9_Module = LoadLibrary(L"D3d9");
 
 	Hooks::HandleIncomingPacket_Addr = FindSig(Hooks::HandleIncomingPacket_Sig.c_str());
 	Hooks::ENetPeerSend_Addr = FindSig(Hooks::ENetPeerSend_Sig.c_str());
 	Hooks::IsDebuggerPresent_Addr = (uintptr_t)GetProcAddress(Hooks::Kernel32_Module, "IsDebuggerPresent");
 	Hooks::GetAdaptersAddresses_Addr = (uintptr_t)GetProcAddress(Hooks::Iphlpapi_Module, "GetAdaptersAddresses");	
 
-	std::cout << "HandleIncomingPacket status : " << MH_StatusToString(MH_CreateHook((LPVOID)Hooks::HandleIncomingPacket_Addr, (LPVOID)HandleIncomingPacket_Hook, (LPVOID*)&Hooks::HandleIncomingPacket_Tramp));
-	std::cout << "ENetPeerSend status : " << MH_StatusToString(MH_CreateHook((LPVOID)Hooks::ENetPeerSend_Addr, (LPVOID)ENetPeerSend_Hook, (LPVOID*)&Hooks::ENetPeerSend_Tramp));
-	std::cout << "IsDebuggerPresent status : " << MH_StatusToString(MH_CreateHook((LPVOID)Hooks::IsDebuggerPresent_Addr, (LPVOID)IsDebuggerPresent_Hook, (LPVOID*)&Hooks::IsDebuggerPresent_Tramp));
-	std::cout << "GetAdapterAddresses status : " << MH_StatusToString(MH_CreateHook((LPVOID)Hooks::GetAdaptersAddresses_Addr, (LPVOID)GetAdaptersAddresses_Hook, (LPVOID*)&Hooks::GetAdaptersAddresses_Tramp));
+	std::cout << GetLastError();
+
+	IDirect3DDevice9* dummy_dev_ptr = 0;
+	IDirect3D9* d3d9;
+	{
+		d3d9 = Direct3DCreate9(D3D_SDK_VERSION);
+
+		D3DPRESENT_PARAMETERS hehe{};
+		hehe.BackBufferWidth = 0;
+		hehe.BackBufferHeight = 0;
+		hehe.BackBufferFormat = D3DFMT_UNKNOWN;
+		hehe.BackBufferCount = 0;
+		hehe.MultiSampleType = D3DMULTISAMPLE_NONE;
+		hehe.MultiSampleQuality = 0;
+		hehe.SwapEffect = D3DSWAPEFFECT_DISCARD;
+		hehe.Windowed = true;
+		hehe.hDeviceWindow = GT_HWND;
+		hehe.EnableAutoDepthStencil = false;
+		hehe.Flags = NULL;
+		hehe.FullScreen_RefreshRateInHz = 0;
+		hehe.PresentationInterval = 0;
+
+		std::cout << "LOL : " << std::system_category().message(d3d9->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_NULLREF, GT_HWND, D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_DISABLE_DRIVER_MANAGEMENT , &hehe, &dummy_dev_ptr)) << '\n';
+		
+	}
+
+	Hooks::D3D9_EndScene_Addr = (uintptr_t)Utils::get_vFunc_addr(dummy_dev_ptr, 42);
+	
+	std::cout << "d3d9endscene_addr : " << std::hex <<D3D9_EndScene_Addr << '\n';
+	std::cout << "device_addr : " << std::hex << dummy_dev_ptr << '\n';
+
+	std::cout << "HandleIncomingPacket status : " << MH_StatusToString(MH_CreateHook((LPVOID)Hooks::HandleIncomingPacket_Addr, (LPVOID)HandleIncomingPacket_Hook, (LPVOID*)&Hooks::HandleIncomingPacket_Tramp)) << '\n';
+	std::cout << "ENetPeerSend status : " << MH_StatusToString(MH_CreateHook((LPVOID)Hooks::ENetPeerSend_Addr, (LPVOID)ENetPeerSend_Hook, (LPVOID*)&Hooks::ENetPeerSend_Tramp)) << '\n';
+	std::cout << "IsDebuggerPresent status : " << MH_StatusToString(MH_CreateHook((LPVOID)Hooks::IsDebuggerPresent_Addr, (LPVOID)IsDebuggerPresent_Hook, (LPVOID*)&Hooks::IsDebuggerPresent_Tramp)) << '\n';
+	std::cout << "GetAdapterAddresses status : " << MH_StatusToString(MH_CreateHook((LPVOID)Hooks::GetAdaptersAddresses_Addr, (LPVOID)GetAdaptersAddresses_Hook, (LPVOID*)&Hooks::GetAdaptersAddresses_Tramp)) << '\n';
+	std::cout << "EndScene status : " << MH_StatusToString(MH_CreateHook((LPVOID)Hooks::D3D9_EndScene_Addr, (LPVOID)D3D9_EndScene_Hook, (LPVOID*)&Hooks::D3D9_EndScene_Tramp)) << '\n';
+	
+	dummy_dev_ptr->Release();
+	d3d9->Release();
 
 	MH_EnableHook(MH_ALL_HOOKS);
 

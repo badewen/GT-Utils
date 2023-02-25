@@ -4,6 +4,11 @@
 #include "Hooks.h"
 #include "Utils.h"
 
+#include "ImGuI/imgui_impl_dx9.h"
+#include "ImGuI/imgui_impl_win32.h"
+#include "ImGuI/imgui.h"
+#include "Gui.h"
+
 #define LOGI std::cout
 
 int __cdecl ENetPeerSend_Hook(ENetPeer* peer, enet_uint8 channelID, ENetPacket* packet) {
@@ -18,7 +23,7 @@ int __cdecl ENetPeerSend_Hook(ENetPeer* peer, enet_uint8 channelID, ENetPacket* 
         std::string bruh = { buff };
         free(buff);
         try {
-            if (!Utils::modify_text_packet(bruh, "4.14", "game_version|")) {
+            if (!Utils::modify_text_packet(bruh, "4.16", "game_version|")) {
                 goto skip;
             }
 
@@ -151,8 +156,6 @@ void HandleIncomingPacket_Hook(int64_t a1, ENetEvent* enet_event) {
     LOGI << "\"\n\n";
 
 skip:
-
-
     return Hooks::HandleIncomingPacket_Tramp(a1, enet_event);
 }
 
@@ -161,6 +164,35 @@ bool __stdcall IsDebuggerPresent_Hook() {
     return false;
 }
 
-ULONG GetAdaptersAddresses_Hook(ULONG Family, ULONG Flags, PVOID Reserved, PIP_ADAPTER_ADDRESSES AdapterAddresses, PULONG SizePointer) {
+ULONG __stdcall GetAdaptersAddresses_Hook(ULONG Family, ULONG Flags, PVOID Reserved, PIP_ADAPTER_ADDRESSES AdapterAddresses, PULONG SizePointer) {
     return Hooks::GetAdaptersAddresses_Tramp(Family, Flags, Reserved, AdapterAddresses, SizePointer);
+}
+
+HRESULT __stdcall D3D9_EndScene_Hook(IDirect3DDevice9Ex* this_) {
+    if (!IsImguiInit) {
+
+        D3DDEVICE_CREATION_PARAMETERS prm{};
+
+        this_->GetCreationParameters(&prm);
+
+        ImGui::CreateContext();
+        ImGui_ImplDX9_Init(this_);
+        ImGui_ImplWin32_Init(prm.hFocusWindow);
+        ImGui_ImplWin32_EnableDpiAwareness();
+        GT_HWND = prm.hFocusWindow;
+        Hooks::WndProc_O = (WNDPROC)SetWindowLongPtr(GT_HWND, GWLP_WNDPROC, (LONG_PTR)WndProc_Hook);
+        IsImguiInit = true;
+        std::cout << "Bro got inited\n";
+    }
+
+    Gui::RenderGui();
+
+    ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+label:
+    return Hooks::D3D9_EndScene_Tramp(this_);
+}
+
+LRESULT __stdcall WndProc_Hook(HWND hwnd, UINT uMsg, WPARAM Wparam, LPARAM lParam) {
+    ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, Wparam, lParam);
+    return CallWindowProc(Hooks::WndProc_O, hwnd, uMsg, Wparam, lParam);
 }

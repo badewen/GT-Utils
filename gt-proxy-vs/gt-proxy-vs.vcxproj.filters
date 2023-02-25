@@ -15,33 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\enet\bruhh\callbacks.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\enet\bruhh\enet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\enet\bruhh\list.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\enet\bruhh\protocol.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\enet\bruhh\time.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\enet\bruhh\types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\enet\bruhh\unix.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\enet\bruhh\utility.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\enet\bruhh\win32.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\enet\callbacks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -84,6 +57,36 @@
     <ClInclude Include="Utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\ImGuI\imconfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ImGuI\imgui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ImGuI\imgui_impl_win32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ImGuI\imgui_internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ImGuI\imstb_rectpack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ImGuI\imstb_textedit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ImGuI\imstb_truetype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ImGuI\imgui_impl_dx9.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Gui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ImGuIAl\imguial_button.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -96,6 +99,30 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="include\ImGuI\imgui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="include\ImGuI\imgui_demo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="include\ImGuI\imgui_draw.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="include\ImGuI\imgui_impl_win32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="include\ImGuI\imgui_tables.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="include\ImGuI\imgui_widgets.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="include\ImGuI\imgui_impl_dx9.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Gui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
