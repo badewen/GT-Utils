@@ -16,6 +16,4 @@ namespace Gui
     extern bool SpoofUserId;
 
     extern float SpoofedVersion;
-
 };
-

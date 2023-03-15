@@ -63,10 +63,8 @@ void Gui::RenderGui() {
         current_tab = ActiveTab_Enum::Packet_Logs;
     }
 
-    
     switch (current_tab)
     {
-
     case ActiveTab_Enum::Debug:
         __render_debug_tab();
         break;
@@ -75,7 +73,7 @@ void Gui::RenderGui() {
         __render_spoof_tab();
         break;
 
-    case ActiveTab_Enum::Packet_Logs :
+    case ActiveTab_Enum::Packet_Logs:
         __render_packet_logs_tab();
 
         break;
@@ -83,7 +81,6 @@ void Gui::RenderGui() {
     default:
         break;
     }
-
 
     ImGui::End();
 
@@ -116,7 +113,7 @@ void Gui::__render_spoof_tab() {
     ImGui::Checkbox("Spoof Mac", &SpoofMac);
     ImGui::Checkbox("Spoof Ip", &SpoofIp);
     ImGui::Checkbox("Spoof UserId", &SpoofUserId);
-    
+
     ImGui::Text("Version Spoof");
     ImGui::SameLine(0, 10);
     ImGui::InputFloat("", &SpoofedVersion);
@@ -152,7 +149,7 @@ void Gui::__render_spoof_tab() {
 }
 
 void Gui::__render_packet_logs_tab() {
-    ImGui::BeginChild(MAIN_HACK_FRAME, {0,0}, true, ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_AlwaysHorizontalScrollbar);
+    ImGui::BeginChild(MAIN_HACK_FRAME, { 0,0 }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_AlwaysHorizontalScrollbar);
 
     ImGuiListClipper clipper;
     clipper.Begin(PacketLogBuf::GetProcessedQueue().size());

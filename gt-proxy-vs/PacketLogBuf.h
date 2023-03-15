@@ -10,7 +10,6 @@
 
 class PacketLogBuf
 {
-
 public:
     static void Init();
 
@@ -18,7 +17,7 @@ public:
 
     // after queue is processed, it will be placed in BackBuffer.
     static void ProcessQueue();
-    
+
     // append BackBuffer's content to FrontBuffer.
     static void Apply();
 
@@ -27,6 +26,4 @@ public:
 
 private:
     static std::vector<std::string> process_packets(PacketReport rep);
-
 };
-

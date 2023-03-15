@@ -28,36 +28,34 @@
 #include "Gui.h"
 #include "Hook_Impl.h"
 
-
 HINSTANCE dllh = 0;
 
 bool IsImguiInit = false;
 HWND GT_HWND = 0;
 
-
-#define LOGI std::cout 
+#define LOGI std::cout
 
 void mainhack();
 
 BOOL WINAPI DllMain(
     HINSTANCE hinstDLL,  // handle to DLL module
     DWORD fdwReason,     // reason for calling function
-    LPVOID lpvReserved )  // reserved
+    LPVOID lpvReserved)  // reserved
 {
     // Perform actions based on the reason for calling.
-    switch( fdwReason ) 
-    { 
-        case DLL_PROCESS_ATTACH:    
-            DisableThreadLibraryCalls(hinstDLL);
-            CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)mainhack , nullptr, 0, 0);
-            dllh = hinstDLL;
-            break;
+    switch (fdwReason)
+    {
+    case DLL_PROCESS_ATTACH:
+        DisableThreadLibraryCalls(hinstDLL);
+        CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)mainhack, nullptr, 0, 0);
+        dllh = hinstDLL;
+        break;
 
-        case DLL_THREAD_ATTACH:
+    case DLL_THREAD_ATTACH:
 
-        case DLL_THREAD_DETACH:
+    case DLL_THREAD_DETACH:
 
-        case DLL_PROCESS_DETACH:
+    case DLL_PROCESS_DETACH:
         break;
     }
     return TRUE;  // Successful DLL_PROCESS_ATTACH.
@@ -65,13 +63,13 @@ BOOL WINAPI DllMain(
 
 void mainhack() {
     AllocConsole();
-    
+
     HMODULE loaded_mod[1024];
     DWORD loaded_mod_count = 0;
     FILE* stdoutf = 0;
     HANDLE gt_proc = 0;
 
-    uint8_t some_packet[] = {0x4, 0x00, 0x00, 0x00, 0x12, 0x00, 0x00, 0x00, 0x2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    uint8_t some_packet[] = { 0x4, 0x00, 0x00, 0x00, 0x12, 0x00, 0x00, 0x00, 0x2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
     //freopen_s(&stdoutf, "packet_logs.txt", "w", stdout);
     freopen_s(&stdoutf, "CONOUT$", "w", stdout);
@@ -82,7 +80,6 @@ void mainhack() {
     PacketLogBuf::Init();
     Hooks::Init();
 
-
     if (!GT_HWND) {
         std::cout << "wtf hwnd null\n";
     }
@@ -92,13 +89,13 @@ void mainhack() {
         std::cout << "EnumProcessModules Failed\n";
         std::cout << GetLastError() << '\n';
     }
-    
+
     // 1023 + null terminator
     WCHAR mod_name[2048];
 
     std::cout << "LOADED MODULES : \n";
 
-    for (int i = 0; i < loaded_mod_count/ sizeof(HMODULE); i++) {
+    for (int i = 0; i < loaded_mod_count / sizeof(HMODULE); i++) {
         if (!GetModuleBaseNameW(gt_proc, loaded_mod[i], mod_name, sizeof(mod_name) - 1)) {
             std::cout << "GetModuleBaseName Failed";
             std::cout << GetLastError() << '\n';
@@ -106,9 +103,9 @@ void mainhack() {
         std::wcout << mod_name << '\n';
         memset(mod_name, 0, sizeof(mod_name));
     }
-        
+
     Timer tm{};
-    while(1) {
+    while (1) {
         if (GetAsyncKeyState(VK_OEM_MINUS)) {
             break;
         }
@@ -123,7 +120,7 @@ void mainhack() {
             Gui::ChangeIp = false;
         }
 
-        if(Gui::ChangeUserId) {
+        if (Gui::ChangeUserId) {
             Generated_UserId = Utils::random_number(8, "11111111", "99999999");
             Gui::ChangeUserId = false;
         }

@@ -13,4 +13,3 @@ struct PacketReport
     PacketReportTypeEnum Type;
     std::vector<uint8_t> Buffer;
 };
-

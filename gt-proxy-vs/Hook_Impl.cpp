@@ -18,7 +18,6 @@ std::string Generated_Mac{};
 std::string Generated_UserId{};
 
 int __cdecl ENetPeerSend_Hook(ENetPeer* peer, enet_uint8 channelID, ENetPacket* packet) {
-
     // lol, i think i read too many of ida decompiler code.
     if (*(uint32_t*)packet->data == 2) {
         char* buff = (char*)malloc(packet->dataLength - 4 + 1);
@@ -63,7 +62,6 @@ int __cdecl ENetPeerSend_Hook(ENetPeer* peer, enet_uint8 channelID, ENetPacket* 
                     goto skip;
                 }
             }
-
         }
         catch (std::exception e) {
             std::cout << e.what();
@@ -136,10 +134,9 @@ skip:
 //}
 
 void HandleIncomingPacket_Hook(int64_t a1, ENetEvent* enet_event) {
-
     //if (enet_event->packet->dataLength > 400)
     //    goto skip;
-    
+
     PacketLogBuf::AppedToQueue(enet_event->packet->data, enet_event->packet->dataLength, PacketReportTypeEnum_Received);
 
 skip:
@@ -152,7 +149,6 @@ bool __stdcall IsDebuggerPresent_Hook() {
 }
 
 ULONG __stdcall GetAdaptersAddresses_Hook(ULONG Family, ULONG Flags, PVOID Reserved, PIP_ADAPTER_ADDRESSES AdapterAddresses, PULONG SizePointer) {
-
     ULONG ret_val = Hooks::GetAdaptersAddresses_Tramp(Family, Flags, Reserved, AdapterAddresses, SizePointer);
 
     //if (!Gui::SpoofIp && !Gui::SpoofMac)
@@ -160,13 +156,12 @@ ULONG __stdcall GetAdaptersAddresses_Hook(ULONG Family, ULONG Flags, PVOID Reser
 
     if (Gui::SpoofIp)
         ((sockaddr_in*)AdapterAddresses->FirstUnicastAddress->Address.lpSockaddr)->sin_addr.S_un.S_addr = inet_addr(Generated_Ip.c_str());
-    
+
     //if (Gui::SpoofMac) {
     //    for (int i = 0; i < AdapterAddresses->PhysicalAddressLength; i++) {
     //        AdapterAddresses->PhysicalAddress[i] = bruh[i];
     //    }
     //}
-
 
 label:
     return ret_val;
@@ -174,7 +169,6 @@ label:
 
 HRESULT __stdcall D3D9_EndScene_Hook(IDirect3DDevice9Ex* this_) {
     if (!IsImguiInit) {
-
         D3DDEVICE_CREATION_PARAMETERS prm{};
 
         this_->GetCreationParameters(&prm);
@@ -189,11 +183,10 @@ HRESULT __stdcall D3D9_EndScene_Hook(IDirect3DDevice9Ex* this_) {
         ImGui::GetIO().Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 12, NULL, ImGui::GetIO().Fonts->GetGlyphRangesChineseSimplifiedCommon());
         std::cout << "Bro got inited\n";
     }
-    
+
     Gui::RenderGui();
 
     ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
-
 
 label:
     return Hooks::D3D9_EndScene_Tramp(this_);

@@ -19,15 +19,15 @@ static std::vector<std::string> FrontBufferCopy{};
 bool hasProcessedQueue = false;
 
 void PacketLogBuf::Init() {
-   PacketByteQueues = {};
-   BackBuffer = {};
-   FrontBuffer = {};
+    PacketByteQueues = {};
+    BackBuffer = {};
+    FrontBuffer = {};
 }
 
 void PacketLogBuf::AppedToQueue(uint8_t* buf, size_t buf_len, PacketReportTypeEnum type) {
     packetByteQueues_Mutex.lock();
 
-    std::vector<uint8_t> burh( buf_len );
+    std::vector<uint8_t> burh(buf_len);
 
     memcpy(&burh[0], buf, buf_len);
 
@@ -42,7 +42,7 @@ void PacketLogBuf::ProcessQueue() {
     if (PacketByteQueues.size() == 0) {
         return;
     }
-    
+
     packetByteQueues_Mutex.lock();
 
     std::vector<PacketReport> packetQueues_Copy{};
@@ -75,7 +75,6 @@ void PacketLogBuf::ProcessQueue() {
     processedQueues.clear();
 
     hasProcessedQueue = true;
-
 }
 
 void PacketLogBuf::Apply() {
@@ -91,7 +90,6 @@ void PacketLogBuf::Apply() {
     BackBuffer.clear();
 
     backBuffer_Mutex.unlock();
-
 
     frontBuffer_Mutex.lock();
 
@@ -131,7 +129,6 @@ std::vector<std::string> PacketLogBuf::process_packets(PacketReport rep) {
     temp.append("\n\n");
 
     return Utils::str_to_str_vec(temp);
-
 }
 
 const std::vector<std::string> PacketLogBuf::GetProcessedQueue() {

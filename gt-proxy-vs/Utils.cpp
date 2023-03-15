@@ -14,7 +14,6 @@
 // len < min || len < max, result will be truncated
 // len > min || len > max, remaining space will be filled with zero from index 0
 std::string Utils::random_number(size_t len, std::string min, std::string max) {
-
     if (max < min)
         std::swap(min, max);
 
@@ -25,7 +24,6 @@ std::string Utils::random_number(size_t len, std::string min, std::string max) {
     std::string gen_num = std::to_string(distr(gen));
 
     std::string result{};
-
 
     if (gen_num.length() < len) {
         for (int i = 0; i < len - gen_num.length(); i++) {
@@ -56,11 +54,9 @@ std::string Utils::random_number_hex(int len) {
     }
 
     return str_stream.str();
-
 }
 
 std::string Utils::random_mac() {
-
     std::string mac{};
     // 17
     mac.reserve(17);
@@ -112,7 +108,6 @@ bool Utils::modify_text_packet(std::string& text_packet, std::string data, std::
     text_packet.replace(packet_name_pos + packet_name.length(), writeable_length, data);
 
     return true;
-
 }
 
 void* Utils::get_vFunc_addr(void* class_ptr, uint32_t index) {
@@ -120,14 +115,11 @@ void* Utils::get_vFunc_addr(void* class_ptr, uint32_t index) {
 }
 
 HWND Utils::get_hwnd() {
-
     HWND found_hwnd = 0;
 
-    EnumWindows((WNDENUMPROC)__enum_windows_callback, (LPARAM) &found_hwnd);
+    EnumWindows((WNDENUMPROC)__enum_windows_callback, (LPARAM)&found_hwnd);
 
     return found_hwnd;
-    
-
 }
 
 BOOL Utils::__enum_windows_callback(HWND hwnd, LPARAM lparam) {
@@ -157,7 +149,6 @@ std::string Utils::random_ip() {
 }
 
 std::vector<BYTE> Utils::mac_to_bytes(std::string mac) {
-    
     std::vector<BYTE> gen_mac{};
 
     std::unique_ptr<char> hehehha = std::make_unique<char>(mac.length());
@@ -172,9 +163,7 @@ std::vector<BYTE> Utils::mac_to_bytes(std::string mac) {
         token = strtok_s(NULL, ":", &ctx);
     }
 
-
     return gen_mac;
-
 }
 
 std::string Utils::to_str_filtered(std::vector<uint8_t> bytes) {

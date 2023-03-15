@@ -26,5 +26,3 @@ extern ULONG __stdcall GetAdaptersAddresses_Hook(ULONG Family, ULONG Flags, PVOI
 extern HRESULT __stdcall D3D9_EndScene_Hook(IDirect3DDevice9Ex* this_);
 
 extern LRESULT __stdcall WndProc_Hook(HWND hwnd, UINT uMsg, WPARAM Wparam, LPARAM lParam);
-
-
