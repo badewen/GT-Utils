@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="PacketLogBuf.h" />
     <ClInclude Include="Gui.h" />
     <ClInclude Include="Hooks.h" />
     <ClInclude Include="Hook_Impl.h" />
@@ -42,9 +43,11 @@
     <ClInclude Include="include\ImGuI\imstb_truetype.h" />
     <ClInclude Include="include\MinHook\MinHook.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="PacketReports.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="PacketLogBuf.cpp" />
     <ClCompile Include="Gui.cpp" />
     <ClCompile Include="Hooks.cpp" />
     <ClCompile Include="Hook_Impl.cpp" />
@@ -161,7 +164,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;_WINSOCK_DEPRECATED_NO_WARNINGS;_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)gt-proxy-vs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>

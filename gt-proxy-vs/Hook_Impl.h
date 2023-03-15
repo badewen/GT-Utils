@@ -10,6 +10,10 @@
 extern bool IsImguiInit;
 extern HWND GT_HWND;
 
+extern std::string Generated_Ip;
+extern std::string Generated_Mac;
+extern std::string Generated_UserId;
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 //extern void some_func_called_every_service_hook(void* Block);

@@ -23,12 +23,17 @@
 #include "ImGuI/imgui.h"
 #include "ImGuI/imgui_impl_dx9.h"
 #include "ImGuI/imgui_impl_win32.h"
+#include "PacketLogBuf.h"
+
+#include "Gui.h"
+#include "Hook_Impl.h"
 
 
 HINSTANCE dllh = 0;
 
 bool IsImguiInit = false;
 HWND GT_HWND = 0;
+
 
 #define LOGI std::cout 
 
@@ -70,17 +75,18 @@ void mainhack() {
 
     //freopen_s(&stdoutf, "packet_logs.txt", "w", stdout);
     freopen_s(&stdoutf, "CONOUT$", "w", stdout);
-    std::cout << "HAHAHAHAHAH";
 
     gt_proc = GetCurrentProcess();
     GT_HWND = Utils::get_hwnd();
 
+    PacketLogBuf::Init();
     Hooks::Init();
+
 
     if (!GT_HWND) {
         std::cout << "wtf hwnd null\n";
     }
-    std::cout << '\n' << Utils::random_number_uint(8) << '\n' << Utils::random_number_hex(8) << '\n' << Utils::random_mac() << '\n'; 
+    std::cout << '\n' << Utils::random_number(8, "0", "99999999") << '\n' << Utils::random_number_hex(8) << '\n' << Utils::random_mac() << '\n' << Utils::random_ip() << '\n';
 
     if (!EnumProcessModulesEx(gt_proc, loaded_mod, sizeof(loaded_mod), &loaded_mod_count, LIST_MODULES_64BIT)) {
         std::cout << "EnumProcessModules Failed\n";
@@ -97,13 +103,35 @@ void mainhack() {
             std::cout << "GetModuleBaseName Failed";
             std::cout << GetLastError() << '\n';
         }
-        std::cout << mod_name << '\n';
+        std::wcout << mod_name << '\n';
         memset(mod_name, 0, sizeof(mod_name));
     }
         
+    Timer tm{};
     while(1) {
-        if (GetAsyncKeyState(VK_ESCAPE) & 0x0001) {
+        if (GetAsyncKeyState(VK_OEM_MINUS)) {
             break;
+        }
+
+        if (Gui::ChangeMac) {
+            Generated_Mac = Utils::random_mac();
+            Gui::ChangeMac = false;
+        }
+
+        if (Gui::ChangeIp) {
+            Generated_Ip = Utils::random_ip();
+            Gui::ChangeIp = false;
+        }
+
+        if(Gui::ChangeUserId) {
+            Generated_UserId = Utils::random_number(8, "11111111", "99999999");
+            Gui::ChangeUserId = false;
+        }
+
+        if (tm.ElapsedMillis() > 100) {
+            PacketLogBuf::ProcessQueue();
+            PacketLogBuf::Apply();
+            tm.Reset();
         }
     }
 
@@ -113,6 +141,8 @@ void mainhack() {
     ImGui_ImplDX9_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
+
+    SetWindowLongPtr(GT_HWND, GWLP_WNDPROC, (LONG_PTR)Hooks::WndProc_O);
 
     FreeConsole();
     fclose(stdoutf);

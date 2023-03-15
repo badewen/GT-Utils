@@ -123,6 +123,8 @@ void Hooks::Init() {
 	Hooks::IsDebuggerPresent_Addr = (uintptr_t)GetProcAddress(Hooks::Kernel32_Module, "IsDebuggerPresent");
 	Hooks::GetAdaptersAddresses_Addr = (uintptr_t)GetProcAddress(Hooks::Iphlpapi_Module, "GetAdaptersAddresses");	
 
+	//GetAdaptersAddresses()
+
 	std::cout << GetLastError();
 
 	IDirect3DDevice9* dummy_dev_ptr = 0;

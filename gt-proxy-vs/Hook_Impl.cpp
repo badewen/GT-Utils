@@ -4,12 +4,18 @@
 #include "Hooks.h"
 #include "Utils.h"
 
+#include "PacketLogBuf.h"
 #include "ImGuI/imgui_impl_dx9.h"
 #include "ImGuI/imgui_impl_win32.h"
 #include "ImGuI/imgui.h"
 #include "Gui.h"
+#include <winsock.h>
 
 #define LOGI std::cout
+
+std::string Generated_Ip{};
+std::string Generated_Mac{};
+std::string Generated_UserId{};
 
 int __cdecl ENetPeerSend_Hook(ENetPeer* peer, enet_uint8 channelID, ENetPacket* packet) {
 
@@ -22,8 +28,12 @@ int __cdecl ENetPeerSend_Hook(ENetPeer* peer, enet_uint8 channelID, ENetPacket* 
 
         std::string bruh = { buff };
         free(buff);
+
+        std::cout << "HUH??";
+
         try {
-            if (!Utils::modify_text_packet(bruh, "4.16", "game_version|")) {
+            if (!Utils::modify_text_packet(bruh, std::to_string(Gui::SpoofedVersion), "game_version|")) {
+                std::cout << "wtf";
                 goto skip;
             }
 
@@ -42,14 +52,17 @@ int __cdecl ENetPeerSend_Hook(ENetPeer* peer, enet_uint8 channelID, ENetPacket* 
             //           if (!modify_text_packet(bruh, random_number_hex(32), "wk|")) {
             //               goto skip;
             //           }
+            if (Gui::SpoofMac) {
+                if (!Utils::modify_text_packet(bruh, Generated_Mac, "mac|")) {
+                    goto skip;
+                }
+            }
 
-            //           if (!modify_text_packet(bruh, random_mac(), "mac|")) {
-            //               goto skip;
-            //           }
-
-            //           if (!modify_text_packet(bruh, random_number_uint(8), "user|")) {
-            //               goto skip;
-            //           }
+            if (Gui::SpoofUserId) {
+                if (!Utils::modify_text_packet(bruh, Generated_UserId, "user|")) {
+                    goto skip;
+                }
+            }
 
         }
         catch (std::exception e) {
@@ -59,19 +72,7 @@ int __cdecl ENetPeerSend_Hook(ENetPeer* peer, enet_uint8 channelID, ENetPacket* 
         memcpy(packet->data + 4, bruh.c_str(), packet->dataLength - 4);
     }
 skip:
-    LOGI << "[PEER SEND]\n";
-    LOGI << "DATA : \"";
-    for (int i = 0; i < packet->dataLength; i++) {
-        printf("0x%02x ", ((uint8_t*)(packet->data))[i]);
-    }
-    LOGI << "\"\n";
-
-    LOGI << "in string : \"";
-
-    for (int i = 0; i < packet->dataLength; i++) {
-        Utils::print_filtered(*((uint8_t*)(((uintptr_t)packet->data) + i)));
-    }
-    LOGI << "\"\n\n";
+    PacketLogBuf::AppedToQueue(packet->data, packet->dataLength, PacketReportTypeEnum_Sent);
 
     return Hooks::ENetPeerSend_Tramp(peer, channelID, packet);
 }
@@ -138,22 +139,8 @@ void HandleIncomingPacket_Hook(int64_t a1, ENetEvent* enet_event) {
 
     //if (enet_event->packet->dataLength > 400)
     //    goto skip;
-
-    LOGI << "[INCOMING PACKET]\n";
-    LOGI << "DATA : \"";
-
-
-    for (int i = 0; i < enet_event->packet->dataLength; i++) {
-        printf("0x%02x ", ((uint8_t*)enet_event->packet->data)[i]);
-    }
-    LOGI << "\n";
-
-    LOGI << "in string : \"";
-
-    for (int i = 0; i < enet_event->packet->dataLength; i++) {
-        Utils::print_filtered(*((uint8_t*)(((uintptr_t)enet_event->packet->data) + i)));
-    }
-    LOGI << "\"\n\n";
+    
+    PacketLogBuf::AppedToQueue(enet_event->packet->data, enet_event->packet->dataLength, PacketReportTypeEnum_Received);
 
 skip:
     return Hooks::HandleIncomingPacket_Tramp(a1, enet_event);
@@ -165,7 +152,24 @@ bool __stdcall IsDebuggerPresent_Hook() {
 }
 
 ULONG __stdcall GetAdaptersAddresses_Hook(ULONG Family, ULONG Flags, PVOID Reserved, PIP_ADAPTER_ADDRESSES AdapterAddresses, PULONG SizePointer) {
-    return Hooks::GetAdaptersAddresses_Tramp(Family, Flags, Reserved, AdapterAddresses, SizePointer);
+
+    ULONG ret_val = Hooks::GetAdaptersAddresses_Tramp(Family, Flags, Reserved, AdapterAddresses, SizePointer);
+
+    //if (!Gui::SpoofIp && !Gui::SpoofMac)
+    //    goto label;
+
+    if (Gui::SpoofIp)
+        ((sockaddr_in*)AdapterAddresses->FirstUnicastAddress->Address.lpSockaddr)->sin_addr.S_un.S_addr = inet_addr(Generated_Ip.c_str());
+    
+    //if (Gui::SpoofMac) {
+    //    for (int i = 0; i < AdapterAddresses->PhysicalAddressLength; i++) {
+    //        AdapterAddresses->PhysicalAddress[i] = bruh[i];
+    //    }
+    //}
+
+
+label:
+    return ret_val;
 }
 
 HRESULT __stdcall D3D9_EndScene_Hook(IDirect3DDevice9Ex* this_) {
@@ -182,12 +186,15 @@ HRESULT __stdcall D3D9_EndScene_Hook(IDirect3DDevice9Ex* this_) {
         GT_HWND = prm.hFocusWindow;
         Hooks::WndProc_O = (WNDPROC)SetWindowLongPtr(GT_HWND, GWLP_WNDPROC, (LONG_PTR)WndProc_Hook);
         IsImguiInit = true;
+        ImGui::GetIO().Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 12, NULL, ImGui::GetIO().Fonts->GetGlyphRangesChineseSimplifiedCommon());
         std::cout << "Bro got inited\n";
     }
-
+    
     Gui::RenderGui();
 
     ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+
+
 label:
     return Hooks::D3D9_EndScene_Tramp(this_);
 }

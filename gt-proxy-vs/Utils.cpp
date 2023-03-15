@@ -4,60 +4,55 @@
 #include <sstream>
 #include <iostream>
 #include "MinHook/MinHook.h"
+#include <algorithm>
+#include <Ip2string.h>
+#include <vector>
 
 #define LOGI std::cout
 
-// same as random_number_uint but can go negative.
-// returned size is len + 1 because negative sign.
-std::string Utils::random_number_int(size_t len, char min_ch, char max_ch) {
-    std::string min_str{};
-    std::string max_str{};
+// min < max will be swapped
+// len < min || len < max, result will be truncated
+// len > min || len > max, remaining space will be filled with zero from index 0
+std::string Utils::random_number(size_t len, std::string min, std::string max) {
 
-    min_str.reserve(len);
-    max_str.reserve(len);
-
-    for (int i = 0; i < len; i++) {
-        min_str.push_back(min_ch);
-        max_str.push_back(max_ch);
-    }
-
-    min_str.replace(0, 1, "1");
-
+    if (max < min)
+        std::swap(min, max);
 
     std::random_device rd;
     std::mt19937 gen{ rd() };
-    std::uniform_int_distribution<> distr{ -(std::stoi(min_str)), std::stoi(max_str) };
+    std::uniform_int_distribution<> distr{ std::stoi(min.c_str()), std::stoi(max.c_str()) };
 
-    return std::to_string(distr(gen));
-}
+    std::string gen_num = std::to_string(distr(gen));
 
-std::string Utils::random_number_uint(size_t len, char min_ch, char max_ch) {
+    std::string result{};
 
-    std::string min_str{};
-    std::string max_str{};
 
-    min_str.reserve(len);
-    max_str.reserve(len);
-
-    for (int i = 0; i < len; i++) {
-        min_str.push_back(min_ch);
-        max_str.push_back(max_ch);
+    if (gen_num.length() < len) {
+        for (int i = 0; i < len - gen_num.length(); i++) {
+            result.append("0");
+        }
+        if (gen_num.find('-') != std::string::npos) {
+            result.append(gen_num.substr(1, gen_num.length()));
+            result.replace(0, 1, ":");
+        }
+        else {
+            result.append(gen_num.substr(0, gen_num.length()));
+        }
+        return result;
+    }
+    else if (gen_num.length() > len) {
+        result = gen_num.substr(0, len);
+        return result;
     }
 
-    min_str.replace(0, 1, "1");
-
-    std::random_device rd;
-    std::mt19937 gen{ rd() };
-    std::uniform_int_distribution<> distr{ std::stoi(min_str), std::stoi(max_str) };
-
-    return std::to_string(distr(gen));
+    return gen_num;
 }
 
 std::string Utils::random_number_hex(int len) {
     std::stringstream str_stream{};
 
     for (int i = 0; i < len; i++) {
-        str_stream << std::hex << (std::stoi(random_number_uint(1, '0', '8')) + std::stoi(random_number_uint(1, '0', '8')));
+        str_stream << std::hex << (std::stoi(random_number(1, "0", "8")) + std::stoi(random_number(1, "0", "8")));
     }
 
     return str_stream.str();
@@ -82,19 +77,20 @@ std::string Utils::random_mac() {
             break;
         mac.push_back(':');
     }
+    std::transform(mac.begin(), mac.end(), mac.begin(), toupper);
+
     return mac;
 }
 
 char allowed_chars[] = { ' ','a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 0xa, '`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '[', ']', '\\', ';', '\'', ',', '.', '/', '{', '}', '|', ':', '"', '<', '>', '?' };
 
-void Utils::print_filtered(char byte_) {
+bool Utils::valid_char(char byte_) {
     for (int i = 0; i < sizeof(allowed_chars); i++) {
         if (allowed_chars[i] == byte_) {
-            LOGI << byte_;
-            return;
+            return true;
         }
     }
-    return;
+    return false;
 }
 
 bool Utils::modify_text_packet(std::string& text_packet, std::string data, std::string packet_name) {
@@ -148,4 +144,81 @@ std::string Utils::to_hex(uint64_t num) {
     std::stringstream str{};
     str << std::hex << num;
     return str.str();
+}
+
+std::string Utils::random_ip() {
+    std::string gen_ip{};
+    gen_ip.append(random_number(3, "100", "240"));
+    for (int i = 0; i < 3; i++) {
+        gen_ip.append(".");
+        gen_ip.append(random_number(3, "100", "240"));
+    }
+    return gen_ip;
+}
+
+std::vector<BYTE> Utils::mac_to_bytes(std::string mac) {
+    
+    std::vector<BYTE> gen_mac{};
+
+    std::unique_ptr<char> hehehha = std::make_unique<char>(mac.length());
+    mac.copy(hehehha.get(), mac.length());
+
+    char* ctx = 0;
+
+    char* token = strtok_s(hehehha.get(), ":", &ctx);
+
+    while (token != NULL) {
+        gen_mac.push_back(std::stoi(token, nullptr, 16));
+        token = strtok_s(NULL, ":", &ctx);
+    }
+
+
+    return gen_mac;
+
+}
+
+std::string Utils::to_str_filtered(std::vector<uint8_t> bytes) {
+    std::stringstream temp{};
+
+    for (uint8_t byte : bytes) {
+        if (!Utils::valid_char(byte)) {
+            temp << "\xFE";
+        }
+        else {
+            temp << byte;
+        }
+    }
+    return temp.str();
+}
+
+std::vector<std::string> Utils::str_to_str_vec(std::string str) {
+    std::vector<std::string> temp{};
+
+    size_t indx = 0;
+    size_t last_indx = 0;
+
+    while (indx != std::string::npos) {
+        indx = str.find('\n', indx + 1);
+
+        temp.push_back(str.substr(last_indx, indx - last_indx));
+
+        last_indx = indx + 1;
+    }
+    temp.push_back(str.substr(str.find_last_of('\n') + 1));
+
+    return temp;
+}
+
+std::string Utils::to_readable_hex(uint64_t num) {
+    std::string hex = Utils::to_hex(num);
+    std::string temp{ "0x" };
+    if (hex.length() == 1) {
+        temp.append("0");
+        temp.append(hex);
+        return temp;
+    }
+    if (hex.length() == 2) {
+        temp.append(hex);
+        return temp;
+    }
 }
