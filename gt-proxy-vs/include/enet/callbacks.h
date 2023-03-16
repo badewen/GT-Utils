@@ -18,6 +18,8 @@ typedef struct _ENetCallbacks
     @{
     @ingroup private
 */
+extern void * enet_malloc (size_t);
+extern void   enet_free (void *);
 
 /** @} */
 
