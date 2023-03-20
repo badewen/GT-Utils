@@ -28,6 +28,8 @@
 #include "Gui.h"
 #include "Hook_Impl.h"
 
+#include "SecureEngineSDK64_FuncExports.h"
+
 HINSTANCE dllh = 0;
 
 bool IsImguiInit = false;
@@ -62,6 +64,10 @@ BOOL WINAPI DllMain(
 }
 
 void mainhack() {
+
+    FreeLibrary(GetModuleHandle(L"ntdll"));
+    //LoadLibrary(L"ntdlll");
+
     AllocConsole();
 
     HMODULE loaded_mod[1024];
@@ -125,11 +131,9 @@ void mainhack() {
             Gui::ChangeUserId = false;
         }
 
-        if (tm.ElapsedMillis() > 100) {
-            PacketLogBuf::ProcessQueue();
-            PacketLogBuf::Apply();
-            tm.Reset();
-        }
+        PacketLogBuf::ProcessQueue();
+        PacketLogBuf::Apply();
+
     }
 
     MH_DisableHook(MH_ALL_HOOKS);
