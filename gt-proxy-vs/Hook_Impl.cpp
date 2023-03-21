@@ -1,7 +1,7 @@
-#include "Hook_Impl.h"
+    #include "Hook_Impl.h"
 
 #include <iostream>
-#include "Hooks.h"
+#include "Hooks_Setup.h"
 #include "Utils.h"
 
 #include "PacketLogBuf.h"
@@ -9,7 +9,7 @@
 #include "ImGuI/imgui_impl_win32.h"
 #include "ImGuI/imgui.h"
 #include "Gui.h"
-#include <winsock.h>
+#include <winsock2.h>
 
 #define LOGI std::cout
 
@@ -28,8 +28,6 @@ int __cdecl ENetPeerSend_Hook(ENetPeer* peer, enet_uint8 channelID, ENetPacket* 
         std::string bruh = { buff };
         free(buff);
 
-        std::cout << "HUH??";
-
         try {
             if (!Utils::modify_text_packet(bruh, std::to_string(Gui::SpoofedVersion), "game_version|")) {
                 std::cout << "wtf";
@@ -40,32 +38,49 @@ int __cdecl ENetPeerSend_Hook(ENetPeer* peer, enet_uint8 channelID, ENetPacket* 
             //           //    goto skip;
             //           //}
 
-            //           //if (!modify_text_packet(bruh, random_number_hex(32), "rid|")) {
-            //           //    goto skip;
-            //           //}
+            if (!Utils::modify_text_packet(bruh, Utils::random_number_hex(32), "rid|")) {
+                goto skip;
+            }
+            //if (!Utils::modify_text_packet(bruh, Utils::random_number_hex(32), "gid|")) {
+            //    goto skip;
+            //}
+            //if (!Utils::modify_text_packet(bruh, "us", "country|")) {
+            //    goto skip;
+            //}
 
-            ///*           if (!modify_text_packet(bruh, random_number_hex(32), "UUIDToken|")) {
-            //               goto skip;
-            //           }*/
+                       //if (!Utils::modify_text_packet(bruh, Utils::random_number_hex(32), "UUIDToken|")) {
+                       //    goto skip;
+                       //}
 
-            //           if (!modify_text_packet(bruh, random_number_hex(32), "wk|")) {
-            //               goto skip;
-            //           }
+            if (!Utils::modify_text_packet(bruh, Utils::random_number_hex(32), "wk|")) {
+                goto skip;
+            }
+
             if (Gui::SpoofMac) {
                 if (!Utils::modify_text_packet(bruh, Generated_Mac, "mac|")) {
                     goto skip;
                 }
             }
 
-            if (Gui::SpoofUserId) {
-                if (!Utils::modify_text_packet(bruh, Generated_UserId, "user|")) {
+            if (Gui::SpoofMac) {
+                if (!Utils::modify_text_packet(bruh, Generated_Mac, "zf|")) {
                     goto skip;
                 }
             }
+
+
+            //if (Gui::SpoofUserId) {
+            //    if (!Utils::modify_text_packet(bruh, Generated_UserId, "user|")) {
+            //        goto skip;
+            //    }
+            //}
         }
         catch (std::exception e) {
             std::cout << e.what();
         }
+        char bru[16];
+        enet_address_get_host_ip(&peer->host->address, bru, 16);
+        std::cout << "IP : " << bru << '\n';
         std::cout << bruh << '\n';
         memcpy(packet->data + 4, bruh.c_str(), packet->dataLength - 4);
     }
@@ -106,24 +121,20 @@ skip:
 //    return enet_peer_receive_tramp(peer, channelID);
 //}
 
-//int __cdecl enet_host_service_hook(ENetHost* host, ENetEvent* event, enet_uint32 timeout) {
-//
-//    if (host->peerCount <= 0 || host->connectedPeers <= 0)
-//        goto some_label;
-//
-//    if (&(host->peers[0]) != peer_) {
-//        peer_mutex.lock();
-//        peer_ = &(host->peers[0]);
-//        peer_mutex.unlock();
-//        LOGI << "peer count : " << host->peerCount << "\nconnected peers : " << host->connectedPeers << '\n';
-//    }
-//
-//    std::cout << "host service!\n";
-//
-//some_label:
-//
-//    return enet_host_service_tramp(host, event, timeout);
-//}
+int __cdecl enet_host_service_hook(ENetHost* host, ENetEvent* event, enet_uint32 timeout) {
+
+    char wtf[16];
+
+    enet_address_get_host_ip(&host->address, wtf, 16);
+
+    std::cout << wtf;
+        
+    std::cout << "host service!\n";
+
+some_label:
+
+    return Hooks::ENetHostService_Tramp(host, event, timeout);
+}
 
 //void some_func_called_every_service_hook(void* Block) {
 //    //register ENetEvent event asm("rax");
@@ -150,7 +161,7 @@ bool __stdcall IsDebuggerPresent_Hook() {
 
 ULONG __stdcall GetAdaptersAddresses_Hook(ULONG Family, ULONG Flags, PVOID Reserved, PIP_ADAPTER_ADDRESSES AdapterAddresses, PULONG SizePointer) {
     ULONG ret_val = Hooks::GetAdaptersAddresses_Tramp(Family, Flags, Reserved, AdapterAddresses, SizePointer);
-
+   
     //if (!Gui::SpoofIp && !Gui::SpoofMac)
     //    goto label;
 

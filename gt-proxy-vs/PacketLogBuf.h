@@ -8,6 +8,10 @@
 
 #include "PacketReports.h"
 
+namespace PacketLogBufGlobalVars {
+    extern std::string RawStrFrontBuf;
+};
+
 class PacketLogBuf
 {
 public:
@@ -20,6 +24,8 @@ public:
 
     // append BackBuffer's content to FrontBuffer.
     static void Apply();
+
+    //static void DumpToFile(std::string fileName);
 
     // return FrontBuffer;
     static const std::vector<std::string> GetProcessedQueue();

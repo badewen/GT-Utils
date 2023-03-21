@@ -17,7 +17,7 @@ extern std::string Generated_UserId;
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 //extern void some_func_called_every_service_hook(void* Block);
-//extern int __cdecl enet_host_service_hook(ENetHost*, ENetEvent*, enet_uint32);
+extern int __cdecl enet_host_service_hook(ENetHost*, ENetEvent*, enet_uint32);
 //ENetPacket* __cdecl enet_peer_receive_hook(ENetPeer * peer, enet_uint8 * channelID);
 extern int __cdecl ENetPeerSend_Hook(ENetPeer* peer, enet_uint8 channelID, ENetPacket* packet);
 extern void HandleIncomingPacket_Hook(int64_t a1, ENetEvent* enet_event);

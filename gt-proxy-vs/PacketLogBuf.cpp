@@ -6,15 +6,17 @@
 std::mutex backBuffer_Mutex{};
 std::mutex frontBuffer_Mutex{};
 
+std::string PacketLogBufGlobalVars::RawStrFrontBuf{};
+
 std::mutex packetByteQueues_Mutex{};
-static std::vector<PacketReport> PacketByteQueues;
+std::vector<PacketReport> PacketByteQueues;
 
 // after packetqueues has been processed by ProcessQueue, it will end up in backbuffer.
 
-static std::vector<std::string> FrontBuffer;
+std::vector<std::string> FrontBuffer;
 std::vector<std::string> BackBuffer;
 
-static std::vector<std::string> FrontBufferCopy{};
+std::vector<std::string> FrontBufferCopy{};
 
 bool hasProcessedQueue = false;
 
@@ -128,13 +130,15 @@ std::vector<std::string> PacketLogBuf::process_packets(PacketReport rep) {
 
     temp.append("\n\n");
 
+    PacketLogBufGlobalVars::RawStrFrontBuf.append(temp);
+
     return Utils::str_to_str_vec(temp);
 }
 
 const std::vector<std::string> PacketLogBuf::GetProcessedQueue() {
     if (frontBuffer_Mutex.try_lock()) {
         //return std::vector<std::string>{FrontBuffer.begin() + line_begin, FrontBuffer.begin() + line_end};
-        frontBuffer_Mutex.unlock();
+        frontBuffer_Mutex.unlock(); 
         return FrontBuffer;
     }
     else {
@@ -142,3 +146,9 @@ const std::vector<std::string> PacketLogBuf::GetProcessedQueue() {
         return FrontBufferCopy;
     }
 }
+
+//void DumpToFile(std::string fileName) {
+//    CreateFile(std::wstring(fileName.c_str()), )
+//
+//    CloseHandle(fileStream);
+//}

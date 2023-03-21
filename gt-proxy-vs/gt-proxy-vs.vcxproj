@@ -19,9 +19,26 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Hook_Virt.h" />
+    <ClInclude Include="Hook_MHook_Impl.h" />
+    <ClInclude Include="Hook_MinHook_Impl.h" />
+    <ClInclude Include="include\MHook\disasm-lib\cpu.h" />
+    <ClInclude Include="include\MHook\disasm-lib\disasm.h" />
+    <ClInclude Include="include\MHook\disasm-lib\disasm_x86.h" />
+    <ClInclude Include="include\MHook\disasm-lib\disasm_x86_tables.h" />
+    <ClInclude Include="include\MHook\disasm-lib\misc.h" />
+    <ClInclude Include="include\MHook\mhook-lib\mhook.h" />
+    <ClInclude Include="include\MinHook\include\MinHook.h" />
+    <ClInclude Include="include\MinHook\src\buffer.h" />
+    <ClInclude Include="include\MinHook\src\hde\hde32.h" />
+    <ClInclude Include="include\MinHook\src\hde\hde64.h" />
+    <ClInclude Include="include\MinHook\src\hde\pstdint.h" />
+    <ClInclude Include="include\MinHook\src\hde\table32.h" />
+    <ClInclude Include="include\MinHook\src\hde\table64.h" />
+    <ClInclude Include="include\MinHook\src\trampoline.h" />
     <ClInclude Include="PacketLogBuf.h" />
     <ClInclude Include="Gui.h" />
-    <ClInclude Include="Hooks.h" />
+    <ClInclude Include="Hooks_Setup.h" />
     <ClInclude Include="Hook_Impl.h" />
     <ClInclude Include="include\enet\callbacks.h" />
     <ClInclude Include="include\enet\enet.h" />
@@ -44,12 +61,32 @@
     <ClInclude Include="include\MinHook\MinHook.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="PacketReports.h" />
+    <ClInclude Include="SecureEngineSDK64_FuncExports.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Hook_Provider_Chooser.cpp" />
+    <ClCompile Include="include\callbacks.c" />
+    <ClCompile Include="include\compress.c" />
+    <ClCompile Include="include\host.c" />
+    <ClCompile Include="include\list.c" />
+    <ClCompile Include="include\MHook\disasm-lib\cpu.c" />
+    <ClCompile Include="include\MHook\disasm-lib\disasm.c" />
+    <ClCompile Include="include\MHook\disasm-lib\disasm_x86.c" />
+    <ClCompile Include="include\MHook\mhook-lib\mhook.cpp" />
+    <ClCompile Include="include\MinHook\src\buffer.c" />
+    <ClCompile Include="include\MinHook\src\hde\hde32.c" />
+    <ClCompile Include="include\MinHook\src\hde\hde64.c" />
+    <ClCompile Include="include\MinHook\src\hook.c" />
+    <ClCompile Include="include\MinHook\src\trampoline.c" />
+    <ClCompile Include="include\packet.c" />
+    <ClCompile Include="include\peer.c" />
+    <ClCompile Include="include\protocol.c" />
+    <ClCompile Include="include\unix.c" />
+    <ClCompile Include="include\win32.c" />
     <ClCompile Include="PacketLogBuf.cpp" />
     <ClCompile Include="Gui.cpp" />
-    <ClCompile Include="Hooks.cpp" />
+    <ClCompile Include="Hooks_Setup.cpp" />
     <ClCompile Include="Hook_Impl.cpp" />
     <ClCompile Include="include\ImGuI\imgui.cpp" />
     <ClCompile Include="include\ImGuI\imgui_demo.cpp" />
@@ -66,7 +103,7 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{f81b9eda-dea3-4d85-abb3-dbfb9a866500}</ProjectGuid>
     <RootNamespace>gtproxyvs</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
     <ProjectName>src</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -172,7 +209,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)lib\minhook.a;Ws2_32.lib;Winmm.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;Winmm.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

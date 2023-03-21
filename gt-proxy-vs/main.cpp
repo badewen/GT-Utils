@@ -12,13 +12,13 @@
 #include <iostream>
 #include <stdio.h>
 #include <string_view>
-#include "./include/MinHook/MinHook.h"
+#include "./include/MinHook/include/MinHook.h"
 #include <Psapi.h>
 #include <random>
 #include <mutex>
 #include <iphlpapi.h>
 
-#include "Hooks.h"
+#include "Hooks_Setup.h"
 #include "Utils.h"
 #include "ImGuI/imgui.h"
 #include "ImGuI/imgui_impl_dx9.h"
@@ -26,6 +26,7 @@
 #include "PacketLogBuf.h"
 
 #include "Gui.h"
+#include "Hook_Virt.h"
 #include "Hook_Impl.h"
 
 #include "SecureEngineSDK64_FuncExports.h"
@@ -64,10 +65,6 @@ BOOL WINAPI DllMain(
 }
 
 void mainhack() {
-
-    FreeLibrary(GetModuleHandle(L"ntdll"));
-    //LoadLibrary(L"ntdlll");
-
     AllocConsole();
 
     HMODULE loaded_mod[1024];
@@ -136,8 +133,8 @@ void mainhack() {
 
     }
 
-    MH_DisableHook(MH_ALL_HOOKS);
-    MH_Uninitialize();
+    Hook::DisableAllHook();
+    Hook::UnInit();
 
     ImGui_ImplDX9_Shutdown();
     ImGui_ImplWin32_Shutdown();

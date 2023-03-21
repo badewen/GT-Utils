@@ -2,8 +2,10 @@
 
 #include "ImGuI/imgui_impl_dx9.h"
 #include "ImGuI/imgui_impl_win32.h"
+#include "ImGuIAl/imguial_button.h"
 #include "ImGuI/imgui.h"
-#include "Hooks.h"
+
+#include "Hooks_Setup.h" // KEEP THIS HEADER HERE. DONT MOVE IT. WILL CAUSE LINKAGE ERROR IF SO.
 #include "Utils.h"
 #include "Hook_Impl.h"
 #include "PacketLogBuf.h"
@@ -11,8 +13,6 @@
 
 #include <iostream>
 
-#include "ImGuIAl/imguial_button.h"
-#include "Hooks.h"
 
 #define TAB_SAMELINE     ImGui::SameLine(0.0f, 3.0f)
 
@@ -161,4 +161,8 @@ void Gui::__render_packet_logs_tab() {
     }
 
     ImGui::EndChild();
+    
+    if (ImGui::Button("Copy")) {
+        ImGui::SetClipboardText(PacketLogBufGlobalVars::RawStrFrontBuf.c_str());
+    }
 }

@@ -3,7 +3,7 @@
 #include <random>
 #include <sstream>
 #include <iostream>
-#include "MinHook/MinHook.h"
+#include "MinHook/include/MinHook.h"
 #include <algorithm>
 #include <Ip2string.h>
 #include <vector>
