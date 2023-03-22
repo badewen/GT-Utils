@@ -40,7 +40,7 @@
 #ifdef _DEBUG
 #define ODPRINTF(a) odprintf a
 #else
-#define ODPRINTF(a)
+#define ODPRINTF(a) odprintf a
 #endif
 
 inline void __cdecl odprintf(PCWSTR format, ...) 

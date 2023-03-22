@@ -7,7 +7,7 @@
 
 #include "Hooks_Setup.h" // KEEP THIS HEADER HERE. DONT MOVE IT. WILL CAUSE LINKAGE ERROR IF SO.
 #include "Utils.h"
-#include "Hook_Impl.h"
+#include "Hooks_Impl.h"
 #include "PacketLogBuf.h"
 #include <string>
 

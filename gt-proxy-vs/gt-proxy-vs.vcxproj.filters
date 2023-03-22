@@ -51,7 +51,7 @@
     <ClInclude Include="Hooks_Setup.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hook_Impl.h">
+    <ClInclude Include="Hooks_Impl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utils.h">
@@ -123,10 +123,10 @@
     <ClInclude Include="Hook_Virt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hook_MHook_Impl.h">
+    <ClInclude Include="Hooking_Backends\Hook_MHook_Impl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hook_MinHook_Impl.h">
+    <ClInclude Include="Hooking_Backends\Hook_MinHook_Impl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\MHook\disasm-lib\cpu.h">
@@ -147,6 +147,18 @@
     <ClInclude Include="include\MHook\mhook-lib\mhook.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Detours\detours.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Detours\detver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Detours\syelog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Hooking_Backends\Hook_Detours_Impl.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -155,7 +167,7 @@
     <ClCompile Include="Hooks_Setup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Hook_Impl.cpp">
+    <ClCompile Include="Hooks_Impl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Utils.cpp">

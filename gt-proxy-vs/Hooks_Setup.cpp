@@ -10,7 +10,7 @@
 #include "Utils.h"
 
 #include "Hook_Virt.h"
-#include "Hook_Impl.h"
+#include "Hooks_Impl.h"
 
 // FindSig cr : Horion Client
 #define INRANGE(x, a, b) (x >= a && x <= b)
@@ -20,7 +20,7 @@
 uintptr_t FindSignatureModule(const char* szModule, const char* szSignature) {
     const char* pattern = szSignature;
     uintptr_t firstMatch = 0;
-    static const auto rangeStart = (uintptr_t)GetModuleHandleA(szModule);
+    static const auto rangeStart = (uintptr_t)GetModuleHandleA(NULL);
     static MODULEINFO miModInfo;
     static bool init = false;
     if (!init) {
@@ -153,22 +153,47 @@ void Hooks::Init() {
 
         std::cout << "LOL : " << std::system_category().message(d3d9->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_NULLREF, GT_HWND, D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_DISABLE_DRIVER_MANAGEMENT, &hehe, &dummy_dev_ptr)) << '\n';
     }
+}
+
+void Hooks::HookAll() {
+    IDirect3DDevice9* dummy_dev_ptr = 0;
+    IDirect3D9* d3d9;
+    {
+        d3d9 = Direct3DCreate9(D3D_SDK_VERSION);
+
+        D3DPRESENT_PARAMETERS hehe{};
+        hehe.BackBufferWidth = 0;
+        hehe.BackBufferHeight = 0;
+        hehe.BackBufferFormat = D3DFMT_UNKNOWN;
+        hehe.BackBufferCount = 0;
+        hehe.MultiSampleType = D3DMULTISAMPLE_NONE;
+        hehe.MultiSampleQuality = 0;
+        hehe.SwapEffect = D3DSWAPEFFECT_DISCARD;
+        hehe.Windowed = true;
+        hehe.hDeviceWindow = GT_HWND;
+        hehe.EnableAutoDepthStencil = false;
+        hehe.Flags = NULL;
+        hehe.FullScreen_RefreshRateInHz = 0;
+        hehe.PresentationInterval = 0;
+
+        std::cout << "LOL : " << std::system_category().message(d3d9->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_NULLREF, GT_HWND, D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_DISABLE_DRIVER_MANAGEMENT, &hehe, &dummy_dev_ptr)) << '\n';
+    }
 
     Hooks::D3D9_EndScene_Addr = (uintptr_t)Utils::get_vFunc_addr(dummy_dev_ptr, 42);
 
     std::cout << "d3d9endscene_addr : " << std::hex << D3D9_EndScene_Addr << '\n';
     std::cout << "device_addr : " << std::hex << dummy_dev_ptr << '\n';
-    
-    std::cout << "HandleIncomingPacket status : " << Hook::StatusToString(Hook::AddHook((LPVOID)Hooks::HandleIncomingPacket_Addr, (LPVOID)HandleIncomingPacket_Hook, (LPVOID*)&Hooks::HandleIncomingPacket_Tramp)) << '\n';
-    std::cout << "ENetPeerSend status : " << Hook::StatusToString(Hook::AddHook((LPVOID)Hooks::ENetPeerSend_Addr, (LPVOID)ENetPeerSend_Hook, (LPVOID*)&Hooks::ENetPeerSend_Tramp)) << '\n';
-    std::cout << "IsDebuggerPresent status : " << Hook::StatusToString(Hook::AddHook((LPVOID)Hooks::IsDebuggerPresent_Addr, (LPVOID)IsDebuggerPresent_Hook, (LPVOID*)&Hooks::IsDebuggerPresent_Tramp)) << '\n';
-    std::cout << "GetAdapterAddresses status : " << Hook::StatusToString(Hook::AddHook((LPVOID)Hooks::GetAdaptersAddresses_Addr, (LPVOID)GetAdaptersAddresses_Hook, (LPVOID*)&Hooks::GetAdaptersAddresses_Tramp)) << '\n';
-    std::cout << "EndScene status : " << Hook::StatusToString(Hook::AddHook((LPVOID)Hooks::D3D9_EndScene_Addr, (LPVOID)D3D9_EndScene_Hook, (LPVOID*)&Hooks::D3D9_EndScene_Tramp)) << '\n';
-    std::cout << "ENetHostService status : " << Hook::StatusToString(Hook::AddHook((LPVOID)Hooks::ENetHostService_Addr, (LPVOID)enet_host_service_hook, (LPVOID*)&Hooks::ENetHostService_Tramp)) << '\n';
+
+    std::cout << "HandleIncomingPacket status : " << Hook::StatusToString(Hook::AddHook((LPVOID)Hooks::HandleIncomingPacket_Addr, (LPVOID)HandleIncomingPacket_Hook, (LPVOID*)&Hooks::HandleIncomingPacket_Tramp)) << " Addr : " << Hooks::HandleIncomingPacket_Addr << '\n';
+    std::cout << "ENetPeerSend status : " << Hook::StatusToString(Hook::AddHook((LPVOID)Hooks::ENetPeerSend_Addr, (LPVOID)ENetPeerSend_Hook, (LPVOID*)&Hooks::ENetPeerSend_Tramp)) << " Addr : " << Hooks::ENetPeerSend_Addr << '\n';
+    std::cout << "IsDebuggerPresent status : " << Hook::StatusToString(Hook::AddHook((LPVOID)Hooks::IsDebuggerPresent_Addr, (LPVOID)IsDebuggerPresent_Hook, (LPVOID*)&Hooks::IsDebuggerPresent_Tramp)) << " Addr : " << Hooks::IsDebuggerPresent_Addr << '\n';
+    std::cout << "GetAdapterAddresses status : " << Hook::StatusToString(Hook::AddHook((LPVOID)Hooks::GetAdaptersAddresses_Addr, (LPVOID)GetAdaptersAddresses_Hook, (LPVOID*)&Hooks::GetAdaptersAddresses_Tramp)) << " Addr : " << Hooks::GetAdaptersAddresses_Addr << '\n';
+    std::cout << "EndScene status : " << Hook::StatusToString(Hook::AddHook((LPVOID)Hooks::D3D9_EndScene_Addr, (LPVOID)D3D9_EndScene_Hook, (LPVOID*)&Hooks::D3D9_EndScene_Tramp)) << " Addr : " << Hooks::D3D9_EndScene_Addr << '\n';
+    std::cout << "ENetHostService status : " << Hook::StatusToString(Hook::AddHook((LPVOID)Hooks::ENetHostService_Addr, (LPVOID)enet_host_service_hook, (LPVOID*)&Hooks::ENetHostService_Tramp)) << " Addr : " << Hooks::ENetHostService_Addr << '\n';
 
 
     dummy_dev_ptr->Release();
     d3d9->Release();
 
-    Hook::EnableAllHook();
+    std::cout << "ENableAllHook status : " << Hook::StatusToString(Hook::EnableAllHook()) << '\n';
 }

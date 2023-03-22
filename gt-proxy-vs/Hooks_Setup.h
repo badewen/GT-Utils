@@ -21,6 +21,7 @@ class Hooks
 {
 public:
     static void Init();
+    static void HookAll();
 
 public:
     static std::string ENetPeerSend_Sig;

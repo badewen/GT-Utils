@@ -27,7 +27,7 @@
 
 #include "Gui.h"
 #include "Hook_Virt.h"
-#include "Hook_Impl.h"
+#include "Hooks_Impl.h"
 
 #include "SecureEngineSDK64_FuncExports.h"
 
@@ -50,6 +50,7 @@ BOOL WINAPI DllMain(
     {
     case DLL_PROCESS_ATTACH:
         DisableThreadLibraryCalls(hinstDLL);
+
         CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)mainhack, nullptr, 0, 0);
         dllh = hinstDLL;
         break;
@@ -108,9 +109,16 @@ void mainhack() {
     }
 
     Timer tm{};
+
+    Hooks::HookAll();
+
     while (1) {
         if (GetAsyncKeyState(VK_OEM_MINUS)) {
             break;
+        }
+
+        if (GetAsyncKeyState(VK_F7)) {
+            Hooks::HookAll();
         }
 
         if (Gui::ChangeMac) {

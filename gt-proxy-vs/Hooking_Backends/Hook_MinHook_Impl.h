@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Hook_Virt.h"
+#include "../Hook_Virt.h"
 #include "MinHook/include/MinHook.h"
 
 void Hook::Init() {
@@ -9,7 +9,10 @@ void Hook::Init() {
 
 
 uint32_t Hook::AddHook(void* addr, void* func, void** tramp) {
-    return MH_CreateHook(addr, func, tramp);
+    uint32_t ret = 0;
+    ret = MH_CreateHook(addr, func, tramp);
+
+    return ret;
 }
 
 uint32_t Hook::EnableHook(void* hook) {

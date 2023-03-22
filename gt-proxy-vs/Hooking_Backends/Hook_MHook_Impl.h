@@ -3,8 +3,9 @@
 // tricky implementation :skull:
 
 #include "MHook/mhook-lib/mhook.h"
-#include "Hook_Virt.h"
+#include "../Hook_Virt.h"
 
+#include <iostream>
 #include <vector>
 
 struct HOOK_INFO_EX {
@@ -56,7 +57,7 @@ uint32_t Hook::EnableHook(void* hook) {
 
             status = Mhook_SetHook(&to_hook_and_tramp, inf.Func);
 
-            if (!status) {
+            if (status) {
                 inf.IsActive = false;
                 return MHOOK_STATUS_HOOK_ENABLE_FAIL;
             }
@@ -76,12 +77,24 @@ uint32_t Hook::EnableAllHook() {
     uint32_t status = 0;
 
     for (HOOK_INFO_EX inf : hook_list) {
-        if (EnableHook(inf.Address)) {
+        bool ret = EnableHook(inf.Address);
+        std::cout << ret;
+        
+        if (ret) {
             status++;
         }
     }
 
-    if (status > 0) {
+    uint32_t pendingHook_Count = 0;
+    for (HOOK_INFO_EX inf : hook_list) {
+        if (!inf.IsActive)
+            pendingHook_Count++;
+    }
+
+    if (status == pendingHook_Count) {
+        return MHOOK_STATUS_HOOK_ENABLE_SUCCESS;
+    }
+    else if (status > 0) {
         return MHOOK_STATUS_HOOK_PARTIAL_SUCCESS;
     }
     return MHOOK_STATUS_HOOK_ENABLE_FAIL;
@@ -96,7 +109,7 @@ void Hook::DisableHook(void* hook) {
 
             status = Mhook_Unhook(inf.Tramp_Addr);
 
-            if (!status) {
+            if (status) {
                 inf.IsActive = true;
                 return;
             }
